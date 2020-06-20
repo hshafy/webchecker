@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "demo"
+name = "web-checker"
 version = "0.1.0"
 description = ""
 authors = ["hshafy <hshafy@users.noreply.github.com>"]

@@ -7,7 +7,7 @@ checker module
 from datetime import datetime
 
 import requests
-
+from logger import logger
 
 class CheckResult(object):
     """
@@ -38,7 +38,8 @@ def _push_results(result):
     """
     Pushes results to Kafka (storage - backend)
     """
-    print(f'{result.created}: {result.site} - {result.code} - {result.elapsed} ms')
+    logger.debug(f'{result.site} - {result.code} - {result.elapsed} ms')
+
 
 
 def start(site):

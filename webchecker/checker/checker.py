@@ -9,6 +9,7 @@ from datetime import datetime
 import requests
 
 from webchecker.logger import logger
+from webchecker.checker.transport import create_trasnport, Message
 
 
 class CheckResult(object):
@@ -22,7 +23,7 @@ class CheckResult(object):
         self.created = datetime.now()
 
 
-def _check_site(site):
+def _check_site(site) -> CheckResult:
     """
     check site and add results to kafka topic
 
@@ -41,7 +42,12 @@ def _push_results(result):
     Pushes results to Kafka (storage - backend)
     """
     logger.debug(f'{result.site} - {result.code} - {result.elapsed} ms')
-
+    transport = create_trasnport()
+    message = Message(site_id=result.site.site_id,
+                      code=result.code,
+                      response_time=result.elapsed,
+                      created=result.created)
+    transport.publish(message=message)
 
 
 def start(site):

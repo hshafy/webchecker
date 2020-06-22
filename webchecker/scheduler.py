@@ -5,7 +5,7 @@ Scheduler module
 """
 import time
 
-from webchecker import checker
+from webchecker.checker import checker
 
 SCHEDULE = [
     {
@@ -63,6 +63,6 @@ def start_scheduler(site):
         time.sleep(5)
 
 
-if __name__ == '__main__':
+def start():
     sites = _fetch_schedule()
     start_scheduler(sites[1])

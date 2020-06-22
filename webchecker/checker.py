@@ -7,7 +7,9 @@ checker module
 from datetime import datetime
 
 import requests
-from logger import logger
+
+from webchecker.logger import logger
+
 
 class CheckResult(object):
     """

@@ -5,7 +5,7 @@ Scheduler module
 """
 import time
 
-import checker
+from webchecker import checker
 
 SCHEDULE = [
     {

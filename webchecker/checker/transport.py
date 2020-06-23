@@ -6,6 +6,9 @@ Messages Transport module
 import abc
 from datetime import datetime
 
+from webchecker.logger import logger
+from webchecker.settings import TRANSPORT
+
 
 class Message:
     """
@@ -43,14 +46,16 @@ class Kafka(TransportInterface):
         # TODO: read topic name from configuration
         pass
 
-
 class File(TransportInterface):
     """
     File Transport
     """
     def publish(self, message: Message):
         # TODO: read file name from configuration
-        pass
+        line = f'{message.site_id},{message.code},{message.response_time},{message.created}\n'
+        filename = 'file_trasnport.txt'
+        with open(filename, mode='a') as f:
+            f.write(line)
 
 
 class Console(TransportInterface):
@@ -64,6 +69,13 @@ class Console(TransportInterface):
               f'creation time: {message.created}\n')
 
 
-def create_trasnport(transport_type: str = 'Console'):
-    # TODO: handle diffrent trasnport types, from settings
+def create_trasnport():
+    transport_type = TRANSPORT.get('type', 'Console')
+    if transport_type == 'File':
+        logger.debug('Will use a File trasnport')
+        return File()
+    if transport_type == 'Kafka':
+        logger.debug('Will use Kafka trasnport')
+        return Kafka()
+        logger.debug('Will only output messages to the Console')
     return Console()

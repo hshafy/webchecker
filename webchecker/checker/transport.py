@@ -4,7 +4,12 @@
 Messages Transport module
 """
 import abc
+import json
+
 from datetime import datetime
+
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
 
 from webchecker.logger import logger
 from webchecker.settings import TRANSPORT
@@ -21,6 +26,24 @@ class Message:
         self.response_time = response_time
         self.created = created
 
+    def asdict(self):
+        return {'site_id': self.site_id,
+                'status_code': self.code,
+                'response_time': self.response_time,
+                'created': self.created.isoformat()}
+
+    def __repr__(self):
+        return json.dumps(self.asdict())
+
+    def asbytes(self):
+        return str(self).encode('utf-8')
+
+
+
+class MessageEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, (datetime.date, datetime.datetime)):
+                return obj.isoformat()
 
 class TransportInterface(metaclass=abc.ABCMeta):
     """
@@ -42,9 +65,23 @@ class Kafka(TransportInterface):
     """
     Kafka Transport
     """
+    def __init__(self):
+        host = TRANSPORT.get('host', 'localhost')
+        port = TRANSPORT.get('port', 9002)
+        self.topic_name = TRANSPORT.get('topic_name', 'defaulttopic')
+        # TODO: use same client accross multiple calls
+        self.producer = KafkaProducer(bootstrap_servers=[f'{host}:{port}'])
+
     def publish(self, message: Message):
-        # TODO: read topic name from configuration
-        pass
+        try:
+            logger.error('test debugger4')
+            self.producer.send(self.topic_name,
+                               message.asbytes())
+        except KafkaError as err:
+            logger.errors(err)
+            logger.debug(f'Error trying to publish a message to kafka, will\
+                          message: {message.asdict()}, not sent!')
+
 
 class File(TransportInterface):
     """
@@ -74,8 +111,22 @@ def create_trasnport():
     if transport_type == 'File':
         logger.debug('Will use a File trasnport')
         return File()
+
     if transport_type == 'Kafka':
         logger.debug('Will use Kafka trasnport')
-        return Kafka()
-        logger.debug('Will only output messages to the Console')
+        try:
+            kafka = Kafka()
+        except KafkaError as err:
+            logger.errors(err)
+            logger.debug('Error trying to create kafka client, will fallback\
+                         to the console')
+            return Console()
+        except TypeError as err:
+            logger.errors(err)
+            logger.debug('Error trying to create kafka client, will fallback\
+                         to the console')
+            return Console()
+        return kafka
+
+    logger.debug('Will only output messages to the Console')
     return Console()

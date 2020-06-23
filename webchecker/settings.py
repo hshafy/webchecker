@@ -6,8 +6,10 @@ Settings
 
 TRANSPORT = {
     # Trasnport type, can be one of File, Console or Kafka
-    "type": 'File'
+    "type": "Kafka",
 
     # Topic name, only in Kafka
-    # "topic_name": "checks",
+    "topic_name": "checks",
+    "host": "kafka",
+    "port": 9092,
 }

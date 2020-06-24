@@ -78,7 +78,7 @@ class Kafka(TransportInterface):
             self.producer.send(self.topic_name,
                                message.asbytes())
         except KafkaError as err:
-            logger.errors(err)
+            logger.error(err)
             logger.debug(f'Error trying to publish a message to kafka, will\
                           message: {message.asdict()}, not sent!')
 
@@ -117,12 +117,12 @@ def create_trasnport():
         try:
             kafka = Kafka()
         except KafkaError as err:
-            logger.errors(err)
+            logger.error(err)
             logger.debug('Error trying to create kafka client, will fallback\
                          to the console')
             return Console()
         except TypeError as err:
-            logger.errors(err)
+            logger.error(err)
             logger.debug('Error trying to create kafka client, will fallback\
                          to the console')
             return Console()

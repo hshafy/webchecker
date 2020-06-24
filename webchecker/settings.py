@@ -13,3 +13,13 @@ TRANSPORT = {
     "host": "kafka",
     "port": 9092,
 }
+
+DATABASE = {
+    # TODO: move this to env variable
+    "db_conn": "postgresql://postgres:postgres@db:5432",
+    "host": "db",
+    "port": 5432,
+    "db_name": "writer",
+    "user": "postgres",
+    "password": "postgres",
+}

@@ -24,7 +24,11 @@ def run_worker():
     consumer = None
     while not consumer:
         logger.debug('Attempting to connect to Kafka')
-        consumer = kafka.get_consumer()
+        try:
+            consumer = kafka.get_consumer()
+        except Exception as err:
+            logger.error(err)
+            logger.debug('Couldn\'t connect to Kafka, will try again...')
         time.sleep(10)
     
     logger.debug('Kafka consumer acquired')

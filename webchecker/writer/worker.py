@@ -5,13 +5,13 @@ writer module
 """
 import time
 
-from webchecker.checker.transport import Message, Kafka
+from webchecker.transport import Message, Kafka
 from webchecker.writer.models import Checks
 from webchecker.logger import logger
 from webchecker.writer.db import init_db
 
 
-def run_worker():
+def start():
 
     """
     Start a worker to process messages

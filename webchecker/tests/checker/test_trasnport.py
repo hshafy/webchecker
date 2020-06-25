@@ -5,7 +5,7 @@ Testing Trasnport
 """
 from datetime import datetime
 
-from webchecker.checker.transport import Message
+from webchecker.transport import Message
 
 
 class TestMessage:
@@ -30,4 +30,3 @@ class TestMessage:
     def test_asbytes(self):
         message = self._create_message()
         assert isinstance(message.asbytes(), bytes)
-

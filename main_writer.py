@@ -3,7 +3,7 @@
 """
 Writer Main
 """
-from webchecker.writer import writer
+from webchecker.writer import worker
 
 if __name__ == '__main__':
-    writer.run_worker()
+    worker.start()

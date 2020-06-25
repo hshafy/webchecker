@@ -5,7 +5,7 @@ Scheduler module
 """
 import time
 
-from webchecker.checker import checker
+from webchecker.checker import worker
 
 SCHEDULE = [
     {
@@ -59,7 +59,7 @@ def start_scheduler(site):
         or chcker.check_site can be a worker that consumes scheduler tasks
     """
     while True:
-        checker.start(site)
+        worker.start(site)
         time.sleep(5)
 
 

@@ -9,7 +9,7 @@ from datetime import datetime
 import requests
 
 from webchecker.logger import logger
-from webchecker.checker.transport import create_trasnport, Message
+from webchecker.transport import create_trasnport, Message
 
 
 class CheckResult(object):

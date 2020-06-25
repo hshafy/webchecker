@@ -18,9 +18,10 @@ class CheckResult(object):
     """
     def __init__(self, site, response):
         self.site = site
-        self.code = response.status_code
+        self.status_code = response.status_code
         self.elapsed = response.elapsed.total_seconds() * 1000
         self.created = datetime.now()
+        self.passed = response.status_code == site.pass_code
 
 
 def _check_site(site) -> CheckResult:
@@ -41,12 +42,13 @@ def _push_results(result):
     """
     Pushes results to Kafka (storage - backend)
     """
-    logger.debug(f'{result.site} - {result.code} - {result.elapsed} ms')
+    logger.debug(f'{result.site} - {result.status_code} - {result.elapsed} ms')
     transport = create_trasnport()
     message = Message(site_id=result.site.site_id,
-                      code=result.code,
+                      status_code=result.status_code,
                       response_time=result.elapsed,
-                      created=result.created)
+                      created=result.created,
+                      passed=result.passed)
     transport.publish(message=message)
 
 

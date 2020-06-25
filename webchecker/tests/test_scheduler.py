@@ -4,6 +4,6 @@ from webchecker.scheduler import Site
 
 class TestSite:
     def test_dummy(self):
-        site = Site(1, 'google', 'google.com', 60, '')
+        site = Site(1, 'google', 'google.com', 60, '', True)
         assert(str(site) == 'google: google.com')
 

@@ -19,18 +19,20 @@ class Message:
     """
     Message to be sent on the trasnport
     """
-    def __init__(self, site_id: int, code: int, response_time: int,
-                 created: datetime):
+    def __init__(self, site_id: int, status_code: int, response_time: int,
+                 created: datetime, passed: bool):
         self.site_id = site_id
-        self.code = code
+        self.status_code = status_code
         self.response_time = response_time
         self.created = created
+        self.passed = passed
 
     def asdict(self):
         return {'site_id': self.site_id,
-                'status_code': self.code,
+                'status_code': self.status_code,
                 'response_time': self.response_time,
-                'created': self.created.isoformat()}
+                'created': self.created.isoformat(),
+                'passed': self.passed}
 
     def __repr__(self):
         return json.dumps(self.asdict())
@@ -43,16 +45,9 @@ class Message:
         """Creates a Message object from bytes"""
         value_str = value.decode('utf-8')
         value_dict = json.loads(value_str)
-        value_dict['code'] = value_dict.get('status_code')
-        del value_dict['status_code']
         value_dict['created'] = datetime.fromisoformat(value_dict['created'])
         return klass(**value_dict)
         
-
-class MessageEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if isinstance(obj, (datetime.date, datetime.datetime)):
-                return obj.isoformat()
 
 class TransportInterface(metaclass=abc.ABCMeta):
     """
@@ -106,8 +101,10 @@ class File(TransportInterface):
     """
     def publish(self, message: Message):
         # TODO: read file name from configuration
-        line = f'{message.site_id},{message.code},{message.response_time},{message.created}\n'
-        filename = 'file_trasnport.txt'
+        line = (f'{message.site_id},{message.status_code},'
+                f'{message.response_time},{message.created},'
+                f'{message.passed}')
+        filename = TRANSPORT.get('file_name', 'file_trasnport.txt')
         with open(filename, mode='a') as f:
             f.write(line)
 
@@ -118,7 +115,7 @@ class Console(TransportInterface):
     """
     def publish(self, message: Message):
         print(f'site id: {message.site_id}\n'
-              f'status code: {message.code}\n'
+              f'status code: {message.status_code}\n'
               f'response time: {message.response_time}\n'
               f'creation time: {message.created}\n')
 

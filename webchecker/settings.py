@@ -12,6 +12,9 @@ TRANSPORT = {
     "topic_name": "checks",
     "host": "kafka",
     "port": 9092,
+
+    # Only for File
+    "file_name": "file_trasnport.txt",
 }
 
 DATABASE = {

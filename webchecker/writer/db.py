@@ -75,11 +75,12 @@ def tables_creation_sqls():
     """
     sql_statements = []
     check_table = ('CREATE TABLE checks('
-                   '  id serial PRIMARY KEY,'
-                   '  site_id INTEGER NOT NULL,'
-                   '  status_code INTEGER NOT NULL,'
-                   '  response_time INTEGER NOT NULL,'
-                   '  created TIMESTAMP)')
+                   '    site_id integer NOT NULL,'
+                   '    created timestamp with time zone NOT NULL,'
+                   '    status_code smallint NOT NULL,'
+                   '    response_time integer NOT NULL,'
+                   '    passed boolean NOT NULL,'
+                   '    CONSTRAINT checks_pkey PRIMARY KEY (site_id,created))')
     sql_statements.append(check_table)
     return sql_statements
 

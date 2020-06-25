@@ -14,6 +14,7 @@ SCHEDULE = [
         "url": "https://google.com",
         "period": 60,  # seconds
         "regex_check": None,
+        "pass_code": 200,
     },
     {
         "site_id": 2,
@@ -21,6 +22,7 @@ SCHEDULE = [
         "url": "https://microsoft.com",
         "period": 30,  # seconds
         "regex_check": None,
+        "pass_code": 200,
     }
 ]
 
@@ -29,12 +31,13 @@ class Site(object):
     """
     Site Class
     """
-    def __init__(self, site_id, name, url, period, regex_check):
+    def __init__(self, site_id, name, url, period, regex_check, pass_code):
         self.site_id = site_id
         self.name = name
         self.url = url
         self.period = period
         self.regex_check = regex_check
+        self.pass_code = pass_code
 
     def __repr__(self):
         return f'{self.name}: {self.url}'

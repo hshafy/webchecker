@@ -51,7 +51,8 @@ def save_result(message: Message):
     Saves result to db
     """
     record = Checks(site_id=message.site_id,
-                    status_code=message.code,
+                    status_code=message.status_code,
                     response_time=message.response_time,
-                    created=message.created)
+                    created=message.created,
+                    passed=message.passed)
     record.save()

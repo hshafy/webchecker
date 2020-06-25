@@ -5,33 +5,20 @@ Scheduler module
 """
 import time
 
-from webchecker.checker import worker
+import validators
 
-SCHEDULE = [
-    {
-        "site_id": 1,
-        "name": "google",
-        "url": "https://google.com",
-        "period": 60,  # seconds
-        "regex_check": None,
-        "pass_code": 200,
-    },
-    {
-        "site_id": 2,
-        "name": "microsift",
-        "url": "https://microsoft.com",
-        "period": 30,  # seconds
-        "regex_check": None,
-        "pass_code": 200,
-    }
-]
+from webchecker.checker import worker
+from webchecker.settings import SCHEDULE
 
 
 class Site(object):
     """
     Site Class
     """
-    def __init__(self, site_id, name, url, period, regex_check, pass_code):
+    def __init__(self, site_id, name, url, period, regex_check, pass_code=200):
+        if not validators.url(url):
+            raise ValueError
+
         self.site_id = site_id
         self.name = name
         self.url = url

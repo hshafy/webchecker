@@ -26,3 +26,22 @@ DATABASE = {
     "user": "postgres",
     "password": "postgres",
 }
+
+SCHEDULE = [
+    {
+        "site_id": 1,
+        "name": "google",
+        "url": "https://google.com",
+        "period": 60,  # seconds
+        "regex_check": None,
+        "pass_code": 200,
+    },
+    {
+        "site_id": 2,
+        "name": "microsift",
+        "url": "https://microsoft.com",
+        "period": 30,  # seconds
+        "regex_check": None,
+        "pass_code": 200,
+    }
+]

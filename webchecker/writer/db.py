@@ -73,7 +73,8 @@ def tables_creation_sqls():
 
 def connection(use_db=True):
     """
-    Get db connection
+    Get db connection with autocommit=True for
+    simplicity
     """
     # TODO: use the connection pool
     host = DATABASE.get("host", 'localhost')
@@ -95,3 +96,19 @@ def connection(use_db=True):
         logger.error(err)
         if hasattr(conn, 'close') and callable(getattr(conn, 'close')):
             conn.close()
+
+def execute(*args, **kwargs):
+    """
+    A wrapper around psycopg2.execute function
+
+    all params will be passed as is
+    """
+    conn = connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(*args, **kwargs)
+    except psycopg2.Error as err:
+        logger.error(err)
+    finally:
+        cur.close()
+        conn.close()

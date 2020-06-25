@@ -6,6 +6,11 @@ services:
         command: python main.py
         depends_on:
             - kafka
+    writer:
+        build: .
+        command: python main_writer.py
+            - kafka
+            - db
     zookeeper:
         image: 'docker.io/bitnami/zookeeper:3-debian-10'
         ports:

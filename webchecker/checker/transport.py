@@ -8,7 +8,7 @@ import json
 
 from datetime import datetime
 
-from kafka import KafkaProducer
+from kafka import KafkaProducer, KafkaConsumer
 from kafka.errors import KafkaError
 
 from webchecker.logger import logger
@@ -38,7 +38,16 @@ class Message:
     def asbytes(self):
         return str(self).encode('utf-8')
 
-
+    @classmethod
+    def from_bytes(klass, value):
+        """Creates a Message object from bytes"""
+        value_str = value.decode('utf-8')
+        value_dict = json.loads(value_str)
+        value_dict['code'] = value_dict.get('status_code')
+        del value_dict['status_code']
+        value_dict['created'] = datetime.fromisoformat(value_dict['created'])
+        return klass(**value_dict)
+        
 
 class MessageEncoder(json.JSONEncoder):
         def default(self, obj):
@@ -65,22 +74,30 @@ class Kafka(TransportInterface):
     """
     Kafka Transport
     """
-    def __init__(self):
-        host = TRANSPORT.get('host', 'localhost')
-        port = TRANSPORT.get('port', 9002)
+    def __init__(self, cons=False):
+        self.host = TRANSPORT.get('host', 'localhost')
+        self.port = TRANSPORT.get('port', 9002)
         self.topic_name = TRANSPORT.get('topic_name', 'defaulttopic')
         # TODO: use same client accross multiple calls
-        self.producer = KafkaProducer(bootstrap_servers=[f'{host}:{port}'])
+        if not cons:
+            self.producer = KafkaProducer(bootstrap_servers=[f'{self.host}:{self.port}'])
 
     def publish(self, message: Message):
+        if not self.producer:
+            raise Exception('No producer found!')
         try:
             logger.error('test debugger4')
             self.producer.send(self.topic_name,
                                message.asbytes())
         except KafkaError as err:
             logger.error(err)
-            logger.debug(f'Error trying to publish a message to kafka, will\
+            logger.debug(f'Error trying to publish a message to kafka, \
                           message: {message.asdict()}, not sent!')
+    def get_consumer(self):
+        # FIXME: this is bad!
+        return KafkaConsumer(self.topic_name,
+                             bootstrap_servers=[f'{self.host}:{self.port}'])
+
 
 
 class File(TransportInterface):

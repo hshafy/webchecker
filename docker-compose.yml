@@ -9,6 +9,7 @@ services:
     writer:
         build: .
         command: python main_writer.py
+        depends_on:
             - kafka
             - db
     zookeeper:

@@ -4,55 +4,68 @@
 DB Module
 """
 import psycopg2
+from psycopg2 import sql
 
-from webchecker.settings import DATABASE
 from webchecker.logger import logger
+from webchecker.settings import DATABASE
 
 
 def init_db():
     """
-    Create database and tables
+    Create database and tables if db not there
     """
-    logger.debug('Initializing database...')
-    create_db()
-    create_tables()
-    logger.debug('Database initialization suceeded.')
-
-
-def create_db():
-    """
-    Create database
-    """
-    # TODO: check if db exists before
-    conn = connection(use_db=False)
-    cur = conn.cursor()
+    # TODO: get params from a function
+    db_name = DATABASE.get('db_name', 'writer')
     try:
-        logger.debug('Creating database...')
-        cur.execute('CREATE DATABASE writer;')
+        conn = connection(use_db=False)
+        cur = conn.cursor()
+        if db_exists(cur, db_name):
+            return True
+        logger.debug('DB not found, will create it...')
+        create_db(cur, db_name)
     except psycopg2.Error as err:
         logger.error(err)
+        return False
     finally:
         cur.close()
         conn.close()
+
+    logger.debug('Switching to created DB...')
+    try:
+        writer_conn = connection()
+        writer_cur = writer_conn.cursor()
+        create_tables(writer_cur)
+    except psycopg2.Error as err:
+        logger.error(err)
+        return False
+    finally:
+        writer_cur.close()
+        writer_conn.close()
+    logger.debug('Database initialization suceeded.')
+    return True
+
+
+def db_exists(cursor, db_name):
+    """Check if database exists"""
+    cursor.execute('SELECT 1 FROM pg_catalog.pg_database '
+                   ' WHERE datname = %s;', [db_name])
+    return cursor.fetchone() is not None
+
+
+def create_db(cursor, db_name):
+    """Create database"""
+    logger.debug('Creating database...')
+    cursor.execute(
+        sql.SQL('CREATE DATABASE {};').format(sql.Identifier(db_name)))
     logger.debug('Database creation suceeded.')
 
 
-def create_tables():
-    """
-    Create tables
-    """
-    conn = connection()
-    cur = conn.cursor()
-    try:
-        tables = tables_creation_sqls()
-        for table in tables:
-            logger.debug('Creating table...')
-            cur.execute(table)
-    except psycopg2.Error as err:
-        logger.error(err)
-    finally:
-        cur.close()
-        conn.close()
+def create_tables(cursor):
+    """Create tables"""
+    tables = tables_creation_sqls()
+    for table in tables:
+        logger.debug('Creating table...')
+        cursor.execute(table)
     logger.debug('Tables creation suceeded.')
 
 
@@ -60,15 +73,15 @@ def tables_creation_sqls():
     """
     Get tables creations sqls
     """
-    sql = []
+    sql_statements = []
     check_table = ('CREATE TABLE checks('
                    '  id serial PRIMARY KEY,'
                    '  site_id INTEGER NOT NULL,'
                    '  status_code INTEGER NOT NULL,'
                    '  response_time INTEGER NOT NULL,'
                    '  created TIMESTAMP)')
-    sql.append(check_table)
-    return sql
+    sql_statements.append(check_table)
+    return sql_statements
 
 
 def connection(use_db=True):
@@ -77,11 +90,12 @@ def connection(use_db=True):
     simplicity
     """
     # TODO: use the connection pool
-    host = DATABASE.get("host", 'localhost')
-    port = DATABASE.get("port", 5432)
-    user = DATABASE.get("user")
-    password = DATABASE.get("password")
-    db_name = DATABASE.get("db_name")
+    # TODO: get params from a function
+    host = DATABASE.get('host', 'localhost')
+    port = DATABASE.get('port', 5432)
+    user = DATABASE.get('user')
+    password = DATABASE.get('password')
+    db_name = DATABASE.get('db_name', 'writer')
     if not use_db:
         db_name = 'postgres'
 
@@ -96,6 +110,7 @@ def connection(use_db=True):
         logger.error(err)
         if hasattr(conn, 'close') and callable(getattr(conn, 'close')):
             conn.close()
+
 
 def execute(*args, **kwargs):
     """

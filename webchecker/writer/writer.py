@@ -8,6 +8,8 @@ import time
 from webchecker.checker.transport import Message, Kafka
 from webchecker.writer.models import Checks
 from webchecker.logger import logger
+from webchecker.writer.db import init_db
+
 
 def run_worker():
 
@@ -19,6 +21,9 @@ def run_worker():
     3- save_result()
     """
     logger.debug('Starting writer worker.')
+    # FIXME: This is only for simplifying dev, to be handled for production
+    # differently
+    assert init_db()
     # FIXME: bitte
     kafka = Kafka(cons=True)
     consumer = None

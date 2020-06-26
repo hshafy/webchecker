@@ -28,7 +28,7 @@ def _check_site(site) -> CheckResult:
     """
     check site and add results to kafka topic
 
-    NOTE:
+    TODO:
     1- should perform non blocking request or handle request in a different
     process/thread [for diffrent sites]
     2- checks for same site has to be handled in order
